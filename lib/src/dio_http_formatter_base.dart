@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 
+typedef HttpLoggerFilter = bool Function();
+
 class HttpFormatter extends Interceptor {
   // Logger object to pretty print the HTTP Request
   final Logger _logger;
@@ -13,6 +15,9 @@ class HttpFormatter extends Interceptor {
       _includeResponseHeaders,
       _includeResponseBody;
 
+  /// Optionally add a filter that will log if the function returns true
+  final HttpLoggerFilter _httpLoggerFilter;
+
   /// Optionally can add custom [LogPrinter]
   HttpFormatter(
       {bool includeRequest = true,
@@ -21,7 +26,8 @@ class HttpFormatter extends Interceptor {
       bool includeResponse = true,
       bool includeResponseHeaders = true,
       bool includeResponseBody = true,
-      Logger logger})
+      Logger logger,
+      HttpLoggerFilter httpLoggerFilter})
       : _includeRequest = includeRequest,
         _includeRequestHeaders = includeRequestHeaders,
         _includeRequestBody = includeRequestBody,
@@ -34,7 +40,8 @@ class HttpFormatter extends Interceptor {
                     methodCount: 0,
                     colors: true,
                     printTime: false,
-                    printEmojis: false));
+                    printEmojis: false)),
+        _httpLoggerFilter = httpLoggerFilter;
 
   @override
   Future onRequest(RequestOptions options) {
@@ -46,18 +53,22 @@ class HttpFormatter extends Interceptor {
 
   @override
   Future onResponse(Response response) async {
-    final message = _prepareLog(response.request, response);
-    if (message != null && message != '') {
-      _logger.i(message);
+    if (_httpLoggerFilter == null || _httpLoggerFilter()) {
+      final message = _prepareLog(response.request, response);
+      if (message != null && message != '') {
+        _logger.i(message);
+      }
     }
     return super.onResponse(response);
   }
 
   @override
   Future onError(DioError err) {
-    final message = _prepareLog(err.request, err.response);
-    if (message != null && message != '') {
-      _logger.e(message);
+    if (_httpLoggerFilter == null || _httpLoggerFilter()) {
+      final message = _prepareLog(err.request, err.response);
+      if (message != null && message != '') {
+        _logger.e(message);
+      }
     }
     return super.onError(err);
   }
