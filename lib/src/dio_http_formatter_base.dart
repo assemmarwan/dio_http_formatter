@@ -104,7 +104,9 @@ class HttpFormatter extends Interceptor {
         }
       }
 
-      if (_includeRequestBody && requestOptions.data != null && requestOptions.data.isNotEmpty) {
+      if (_includeRequestBody &&
+          requestOptions.data != null &&
+          requestOptions.data.isNotEmpty) {
         requestString +=
             '\n\n' + _getBody(requestOptions.data, requestOptions.contentType);
       }
@@ -124,7 +126,9 @@ class HttpFormatter extends Interceptor {
         }
       }
 
-      if (_includeResponseBody && response.data != null && response.data.isNotEmpty) {
+      if (_includeResponseBody &&
+          response.data != null &&
+          response.data.isNotEmpty) {
         responseString += '\n\n' +
             _getBody(response.data, response.headers.value('content-type'));
       }
