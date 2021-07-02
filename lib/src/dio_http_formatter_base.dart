@@ -44,37 +44,37 @@ class HttpFormatter extends Interceptor {
         _httpLoggerFilter = httpLoggerFilter;
 
   @override
-  Future onRequest(RequestOptions options) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     options.extra = <String, dynamic>{
       'start_time': DateTime.now().millisecondsSinceEpoch
     };
-    return super.onRequest(options);
+    super.onRequest(options, handler);
   }
 
   @override
-  Future onResponse(Response response) async {
+  void onResponse(Response response, ResponseInterceptorHandler handler) async {
     if (_httpLoggerFilter == null || _httpLoggerFilter!()) {
-      final message = _prepareLog(response.request, response);
+      final message = _prepareLog(response.requestOptions, response);
       if (message != '') {
         _logger.i(message);
       }
     }
-    return super.onResponse(response);
+    super.onResponse(response, handler);
   }
 
   @override
-  Future onError(DioError err) {
+  void onError(DioError err, ErrorInterceptorHandler handler) {
     if (_httpLoggerFilter == null || _httpLoggerFilter!()) {
-      final message = _prepareLog(err.request, err.response);
+      final message = _prepareLog(err.requestOptions, err.response);
       if (message != '') {
         _logger.e(message);
       }
     }
-    return super.onError(err);
+    return super.onError(err, handler);
   }
 
   /// Whether to pretty print a JSON or return as regular String
-  String _getBody(dynamic? data, String? contentType) {
+  String _getBody(dynamic data, String? contentType) {
     if (contentType != null &&
         contentType.toLowerCase().contains('application/json')) {
       final encoder = JsonEncoder.withIndent('  ');
