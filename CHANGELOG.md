@@ -1,3 +1,6 @@
+## 2.0.0
+- Fully migrated to Null Safety
+
 ## 2.0.0-nullsafety.0
 - Migration to Null Safety
 
