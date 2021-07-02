@@ -16,7 +16,7 @@ class HttpFormatter extends Interceptor {
       _includeResponseBody;
 
   /// Optionally add a filter that will log if the function returns true
-  final HttpLoggerFilter _httpLoggerFilter;
+  final HttpLoggerFilter? _httpLoggerFilter;
 
   /// Optionally can add custom [LogPrinter]
   HttpFormatter(
@@ -26,8 +26,8 @@ class HttpFormatter extends Interceptor {
       bool includeResponse = true,
       bool includeResponseHeaders = true,
       bool includeResponseBody = true,
-      Logger logger,
-      HttpLoggerFilter httpLoggerFilter})
+      Logger? logger,
+      HttpLoggerFilter? httpLoggerFilter})
       : _includeRequest = includeRequest,
         _includeRequestHeaders = includeRequestHeaders,
         _includeRequestBody = includeRequestBody,
@@ -44,38 +44,39 @@ class HttpFormatter extends Interceptor {
         _httpLoggerFilter = httpLoggerFilter;
 
   @override
-  Future onRequest(RequestOptions options) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     options.extra = <String, dynamic>{
       'start_time': DateTime.now().millisecondsSinceEpoch
     };
-    return super.onRequest(options);
+    super.onRequest(options, handler);
   }
 
   @override
-  Future onResponse(Response response) async {
-    if (_httpLoggerFilter == null || _httpLoggerFilter()) {
-      final message = _prepareLog(response.request, response);
-      if (message != null && message != '') {
+  void onResponse(Response response, ResponseInterceptorHandler handler) async {
+    if (_httpLoggerFilter == null || _httpLoggerFilter!()) {
+      final message = _prepareLog(response.requestOptions, response);
+      if (message != '') {
         _logger.i(message);
       }
     }
-    return super.onResponse(response);
+    super.onResponse(response, handler);
   }
 
   @override
-  Future onError(DioError err) {
-    if (_httpLoggerFilter == null || _httpLoggerFilter()) {
-      final message = _prepareLog(err.request, err.response);
-      if (message != null && message != '') {
+  void onError(DioError err, ErrorInterceptorHandler handler) {
+    if (_httpLoggerFilter == null || _httpLoggerFilter!()) {
+      final message = _prepareLog(err.requestOptions, err.response);
+      if (message != '') {
         _logger.e(message);
       }
     }
-    return super.onError(err);
+    return super.onError(err, handler);
   }
 
   /// Whether to pretty print a JSON or return as regular String
-  String _getBody(dynamic data, String contentType) {
-    if (contentType.toLowerCase().contains('application/json')) {
+  String _getBody(dynamic data, String? contentType) {
+    if (contentType != null &&
+        contentType.toLowerCase().contains('application/json')) {
       final encoder = JsonEncoder.withIndent('  ');
       Map jsonBody;
       if (data is String) {
@@ -90,25 +91,26 @@ class HttpFormatter extends Interceptor {
   }
 
   /// Extracts the headers and body (if any) from the request and response
-  String _prepareLog(RequestOptions requestOptions, Response response) {
+  String _prepareLog(RequestOptions? requestOptions, Response? response) {
     var requestString = '', responseString = '';
 
     if (_includeRequest) {
       requestString = '⤴ REQUEST ⤴\n\n';
 
-      requestString += '${requestOptions.method} ${requestOptions.path}\n';
+      requestString +=
+          '${requestOptions?.method ?? ''} ${requestOptions?.path ?? ''}\n';
 
       if (_includeRequestHeaders) {
-        for (final header in requestOptions.headers.entries) {
+        for (final header in (requestOptions?.headers ?? {}).entries) {
           requestString += '${header.key}: ${header.value}\n';
         }
       }
 
       if (_includeRequestBody &&
-          requestOptions.data != null &&
-          requestOptions.data.isNotEmpty) {
-        requestString +=
-            '\n\n' + _getBody(requestOptions.data, requestOptions.contentType);
+          requestOptions?.data != null &&
+          requestOptions?.data.isNotEmpty) {
+        requestString += '\n\n' +
+            _getBody(requestOptions?.data, requestOptions?.contentType);
       }
 
       requestString += '\n\n';
@@ -117,7 +119,7 @@ class HttpFormatter extends Interceptor {
     if (_includeResponse && response != null) {
       responseString =
           '⤵ RESPONSE [${response.statusCode}/${response.statusMessage}] '
-          '${requestOptions.extra['start_time'] != null ? '[Time elapsed: ${DateTime.now().millisecondsSinceEpoch - requestOptions.extra['start_time']} ms]' : ''}'
+          '${requestOptions?.extra['start_time'] != null ? '[Time elapsed: ${DateTime.now().millisecondsSinceEpoch - requestOptions?.extra['start_time']} ms]' : ''}'
           '⤵\n\n';
 
       if (_includeResponseHeaders) {
