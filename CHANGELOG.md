@@ -1,3 +1,7 @@
+## 2.0.1
+- Fixed parsing request/response to String
+- Fixed handling of JSON response if List
+
 ## 2.0.0
 - Fully migrated to Null Safety
 
