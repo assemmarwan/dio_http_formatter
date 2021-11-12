@@ -78,7 +78,8 @@ class HttpFormatter extends Interceptor {
     if (contentType != null &&
         contentType.toLowerCase().contains('application/json')) {
       final encoder = JsonEncoder.withIndent('  ');
-      Map jsonBody;
+      // Since the JSON could be a Map or List
+      dynamic jsonBody;
       if (data is String) {
         jsonBody = jsonDecode(data);
       } else {
@@ -106,9 +107,7 @@ class HttpFormatter extends Interceptor {
         }
       }
 
-      if (_includeRequestBody &&
-          requestOptions?.data != null &&
-          requestOptions?.data.isNotEmpty) {
+      if (_includeRequestBody && requestOptions?.data != null) {
         requestString += '\n\n' +
             _getBody(requestOptions?.data, requestOptions?.contentType);
       }
@@ -128,9 +127,7 @@ class HttpFormatter extends Interceptor {
         }
       }
 
-      if (_includeResponseBody &&
-          response.data != null &&
-          response.data.isNotEmpty) {
+      if (_includeResponseBody && response.data != null) {
         responseString += '\n\n' +
             _getBody(response.data, response.headers.value('content-type'));
       }
