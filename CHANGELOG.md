@@ -1,3 +1,7 @@
+## 2.1.0
+- feat: Ability to print query parameters (Enabled by default: `includeRequestQueryParams` )
+- docs: Added example of query parameters print output
+
 ## 2.0.1
 - Fixed parsing request/response to String
 - Fixed handling of JSON response if List
