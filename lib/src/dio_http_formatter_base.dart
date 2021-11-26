@@ -10,6 +10,7 @@ class HttpFormatter extends Interceptor {
   final Logger _logger;
   final bool _includeRequest,
       _includeRequestHeaders,
+      _includeRequestQueryParams,
       _includeRequestBody,
       _includeResponse,
       _includeResponseHeaders,
@@ -22,6 +23,7 @@ class HttpFormatter extends Interceptor {
   HttpFormatter(
       {bool includeRequest = true,
       bool includeRequestHeaders = true,
+      bool includeRequestQueryParams = true,
       bool includeRequestBody = true,
       bool includeResponse = true,
       bool includeResponseHeaders = true,
@@ -30,6 +32,7 @@ class HttpFormatter extends Interceptor {
       HttpLoggerFilter? httpLoggerFilter})
       : _includeRequest = includeRequest,
         _includeRequestHeaders = includeRequestHeaders,
+        _includeRequestQueryParams = includeRequestQueryParams,
         _includeRequestBody = includeRequestBody,
         _includeResponse = includeResponse,
         _includeResponseHeaders = includeResponseHeaders,
@@ -91,6 +94,21 @@ class HttpFormatter extends Interceptor {
     }
   }
 
+  String _getQueryParams(Map<String, dynamic>? queryParams) {
+    var result = '';
+
+    if (queryParams != null && queryParams.isNotEmpty) {
+      result += '===== Query Parameters =====';
+      // Temporarily save the query params as string concatenation to be joined
+      final params = <String>[];
+      for (final entry in queryParams.entries) {
+        params.add('${entry.key} : ${entry.value.toString()}');
+      }
+      result += '\n${params.join('\n')}';
+    }
+    return result;
+  }
+
   /// Extracts the headers and body (if any) from the request and response
   String _prepareLog(RequestOptions? requestOptions, Response? response) {
     var requestString = '', responseString = '';
@@ -105,6 +123,12 @@ class HttpFormatter extends Interceptor {
         for (final header in (requestOptions?.headers ?? {}).entries) {
           requestString += '${header.key}: ${header.value}\n';
         }
+      }
+
+      if (_includeRequestQueryParams &&
+          requestOptions?.queryParameters != null &&
+          requestOptions!.queryParameters.isNotEmpty) {
+        requestString += '\n' + _getQueryParams(requestOptions.queryParameters);
       }
 
       if (_includeRequestBody && requestOptions?.data != null) {
