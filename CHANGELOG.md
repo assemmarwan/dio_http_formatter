@@ -1,3 +1,6 @@
+## 2.1.1
+- fix: Avoid replacing `extra` property of options (#6)
+
 ## 2.1.0
 - feat: Ability to print query parameters (Enabled by default: `includeRequestQueryParams` )
 - docs: Added example of query parameters print output
