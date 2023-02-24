@@ -1,4 +1,4 @@
-[![Pub Version](https://img.shields.io/pub/v/dio_http_formatter)](https://pub.dev/packages/dio_http_formatter)
+[![Pub Version](https://img.shields.io/pub/v/dio_http_formatter?include_prereleases)](https://pub.dev/packages/dio_http_formatter)
 
 A simple Dio interceptor for pretty printing the HTTP request/response (using the awesome package [Logger](https://github.com/leisim/logger)) to be printed in the console for easier debugging and sharing.
 
