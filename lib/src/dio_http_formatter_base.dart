@@ -5,6 +5,9 @@ import 'package:logger/logger.dart';
 
 typedef HttpLoggerFilter = bool Function();
 
+const _prefix = 'dio_http_formatter';
+const _startTimeKey = '$_prefix@start_time';
+
 class HttpFormatter extends Interceptor {
   // Logger object to pretty print the HTTP Request
   final Logger _logger;
@@ -48,9 +51,7 @@ class HttpFormatter extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.extra = <String, dynamic>{
-      'start_time': DateTime.now().millisecondsSinceEpoch
-    };
+    options.extra[_startTimeKey] = DateTime.now().millisecondsSinceEpoch;
     super.onRequest(options, handler);
   }
 
@@ -142,7 +143,7 @@ class HttpFormatter extends Interceptor {
     if (_includeResponse && response != null) {
       responseString =
           '⤵ RESPONSE [${response.statusCode}/${response.statusMessage}] '
-          '${requestOptions?.extra['start_time'] != null ? '[Time elapsed: ${DateTime.now().millisecondsSinceEpoch - requestOptions?.extra['start_time']} ms]' : ''}'
+          '${requestOptions?.extra[_startTimeKey] != null ? '[Time elapsed: ${DateTime.now().millisecondsSinceEpoch - requestOptions?.extra[_startTimeKey]} ms]' : ''}'
           '⤵\n\n';
 
       if (_includeResponseHeaders) {
