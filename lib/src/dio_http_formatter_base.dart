@@ -129,12 +129,12 @@ class HttpFormatter extends Interceptor {
       if (_includeRequestQueryParams &&
           requestOptions?.queryParameters != null &&
           requestOptions!.queryParameters.isNotEmpty) {
-        requestString += '\n' + _getQueryParams(requestOptions.queryParameters);
+        requestString += '\n${_getQueryParams(requestOptions.queryParameters)}';
       }
 
       if (_includeRequestBody && requestOptions?.data != null) {
-        requestString += '\n\n' +
-            _getBody(requestOptions?.data, requestOptions?.contentType);
+        requestString +=
+            '\n\n${_getBody(requestOptions?.data, requestOptions?.contentType)}';
       }
 
       requestString += '\n\n';
@@ -153,8 +153,8 @@ class HttpFormatter extends Interceptor {
       }
 
       if (_includeResponseBody && response.data != null) {
-        responseString += '\n\n' +
-            _getBody(response.data, response.headers.value('content-type'));
+        responseString +=
+            '\n\n${_getBody(response.data, response.headers.value('content-type'))}';
       }
     }
 
