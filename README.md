@@ -1,8 +1,10 @@
 [![Pub Version](https://img.shields.io/pub/v/dio_http_formatter)](https://pub.dev/packages/dio_http_formatter)
 
-A simple Dio interceptor for pretty printing the HTTP request/response (using the awesome package [Logger](https://github.com/leisim/logger)) to be printed in the console for easier debugging and sharing.
+A simple Dio interceptor for pretty printing the HTTP request/response (using the awesome
+package [Logger](https://github.com/leisim/logger)) to be printed in the console for easier debugging and sharing.
 
 Different content types are supported and pretty printed such as:
+
 - `application/json`
 - `application/x-www-form-urlencoded`
 - `text/html`
@@ -16,6 +18,7 @@ flutter pub get dio_http_formatter
 ```
 
 or if not for Flutter:
+
 ```
 pub get dio_http_formatter
 ```
@@ -23,24 +26,34 @@ pub get dio_http_formatter
 2- Add the interceptor to your Dio instance like:
 
 ```dart
+
 final _dio = Dio();
 _dio.interceptors.add(HttpFormatter());
 ```
+
+### Dio Version Map
+
+For a certain version of Dio, use the following table to find the correct version of this package to use:
+
+| Dio Version | Package Version |
+|:------------|:----------------|
+| 4.x.x       | 2.x.x           |
+| 5.x.x       | 3.x.x           |
 
 ## Options
 
 Below are the optional parameters that can be specified for the formatter to customize what and how the HTTP request and response is printed.
 
-| Property                  | Type     | Default Value      |
-|:--------------------------|:---------|:------------------:|
-| includeRequest            | `bool`   | `true`             |
-| includeRequestHeaders     | `bool`   | `true`             |
-| includeRequestQueryParams | `bool`   | `true`             |
-| includeRequestBody        | `bool`   | `true`             |
-| includeResponse           | `bool`   | `true`             |
-| includeResponseHeaders    | `bool`   | `true`             |
-| includeResponseBody       | `bool`   | `true`             |
-| logger                    | `Logger` | `PrettyPrinter()`  |
+| Property                  | Type     |   Default Value   |
+|:--------------------------|:---------|:-----------------:|
+| includeRequest            | `bool`   |      `true`       |
+| includeRequestHeaders     | `bool`   |      `true`       |
+| includeRequestQueryParams | `bool`   |      `true`       |
+| includeRequestBody        | `bool`   |      `true`       |
+| includeResponse           | `bool`   |      `true`       |
+| includeResponseHeaders    | `bool`   |      `true`       |
+| includeResponseBody       | `bool`   |      `true`       |
+| logger                    | `Logger` | `PrettyPrinter()` |
 
 ## Examples
 
@@ -112,7 +125,6 @@ Below are the optional parameters that can be specified for the formatter to cus
 ```dart
 await _dio.get('https://example.org');
 ```
-
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -188,14 +200,12 @@ await _dio.get('https://example.org');
 └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ```
 
-
 ### Successful GET request with Query Params [text/html]
 
 ```dart
   await _dio.get('https://example.com',
         queryParameters: {'limit_start': 0, 'search_term': 'dart'});
 ```
-
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
