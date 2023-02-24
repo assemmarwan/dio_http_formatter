@@ -5,7 +5,8 @@ import 'package:logger/logger.dart';
 
 typedef HttpLoggerFilter = bool Function();
 
-const _startTimeKey = ' dio_http_formatter@start_time';
+const _prefix = 'dio_http_formatter';
+const _startTimeKey = '$_prefix@start_time';
 
 class HttpFormatter extends Interceptor {
   // Logger object to pretty print the HTTP Request
