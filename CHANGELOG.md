@@ -1,3 +1,7 @@
+## 3.0.0
+
+- Upgrade dio to 5.0.0
+
 ## 3.0.0-preview.1
 
 ### Breaking Changes
