@@ -170,8 +170,12 @@ class HttpFormatter extends Interceptor {
       map[entry.key] = entry.value;
     }
     for (final file in formData.files) {
-      map[file.key] =
-          "[MultipartFile] ${file.value.filename} length: ${file.value.length}";
+      var responseString = "[application/octet-stream; ";
+      if (file.value.filename != null) {
+        responseString += "filename=${file.value.filename}; ";
+      }
+      responseString += "length=${file.value.length}]";
+      map[file.key] = responseString;
     }
     return map;
   }
