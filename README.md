@@ -120,6 +120,131 @@ Below are the optional parameters that can be specified for the formatter to cus
 └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ```
 
+### POST request [multipart/form-data]
+```dart
+await dio.post(
+    "https://postman-echo.com/post",
+    data: FormData.fromMap({
+      "foo": "foo",
+      "bar": MultipartFile.fromBytes([1, 2, 3, 4, 5, 6])
+    }),
+  );
+```
+```text
+┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│ ⤴ REQUEST ⤴
+│ 
+│ POST https://postman-echo.com/post
+│ content-type: multipart/form-data; boundary=--dio-boundary-0846883596
+│ content-length: 234
+│ 
+│ 
+│ {
+│   "foo": "foo",
+│   "bar": "[application/octet-stream; length=6]"
+│ }
+│ 
+│ ⤵ RESPONSE [200/OK] [Time elapsed: 1431 ms]⤵
+│ 
+│ etag: [W/"238-Drbr+mbesAC7mnUT1/6HdwqJbOg"]
+│ connection: [keep-alive]
+│ content-type: [application/json; charset=utf-8]
+│ set-cookie: [sails.sid=s%3AYZPFhMKwqVTkLbZkRSbdqY_ZGZYFul8h.UrGXXLdzjfYJEdEVOlpQND2Ms3KnpKomTNQh42u3tS4; Path=/; HttpOnly]
+│ date: [Sun, 19 Mar 2023 12:39:21 GMT]
+│ content-length: [568]
+│ 
+│ 
+│ {
+│   "args": {},
+│   "data": {},
+│   "files": {
+│     "undefined": "data:application/octet-stream;base64,AQIDBAUG"
+│   },
+│   "form": {
+│     "foo": "foo"
+│   },
+│   "headers": {
+│     "x-forwarded-proto": "https",
+│     "x-forwarded-port": "443",
+│     "host": "postman-echo.com",
+│     "x-amzn-trace-id": "Root=1-64170279-48f590a477b666d63975dd13",
+│     "content-length": "234",
+│     "user-agent": "Dart/2.19 (dart:io)",
+│     "content-type": "multipart/form-data; boundary=--dio-boundary-0846883596",
+│     "accept-encoding": "gzip"
+│   },
+│   "json": null,
+│   "url": "https://postman-echo.com/post"
+│ }
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+```
+
+### POST request [application/x-www-form-urlencoded]
+```dart
+await dio.post(
+    "https://postman-echo.com/post",
+    data: {
+      "foo": "foo",
+      "bar": "bar",
+    },
+    options: Options(
+      contentType: Headers.formUrlEncodedContentType,
+    ),
+  );
+```
+```text
+┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│ ⤴ REQUEST ⤴
+│ 
+│ POST https://postman-echo.com/post
+│ content-type: application/x-www-form-urlencoded
+│ content-length: 15
+│ 
+│ 
+│ {
+│   "foo": "foo",
+│   "bar": "bar"
+│ }
+│ 
+│ ⤵ RESPONSE [200/OK] [Time elapsed: 1419 ms]⤵
+│ 
+│ etag: [W/"213-RckysDJgyaHU3rsP8vCoDnqI4Pg"]
+│ connection: [keep-alive]
+│ content-type: [application/json; charset=utf-8]
+│ set-cookie: [sails.sid=s%3AxDq5jvVLfuAkxh5o0pUhZOLzkqPt4xBz.apV3a%2FKrhiKWA%2B7foUqihO0BMGTnCOwVSiiW93CBozo; Path=/; HttpOnly]
+│ date: [Sun, 19 Mar 2023 12:42:13 GMT]
+│ content-length: [531]
+│ 
+│ 
+│ {
+│   "args": {},
+│   "data": "",
+│   "files": {},
+│   "form": {
+│     "foo": "foo",
+│     "bar": "bar"
+│   },
+│   "headers": {
+│     "x-forwarded-proto": "https",
+│     "x-forwarded-port": "443",
+│     "host": "postman-echo.com",
+│     "x-amzn-trace-id": "Root=1-64170325-433157c952cf5ed84f36f867",
+│     "content-length": "15",
+│     "user-agent": "Dart/2.19 (dart:io)",
+│     "content-type": "application/x-www-form-urlencoded",
+│     "accept-encoding": "gzip"
+│   },
+│   "json": {
+│     "foo": "foo",
+│     "bar": "bar"
+│   },
+│   "url": "https://postman-echo.com/post"
+│ }
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+```
+
+
+
 ### Successful GET request [text/html]
 
 ```dart

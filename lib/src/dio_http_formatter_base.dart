@@ -79,8 +79,9 @@ class HttpFormatter extends Interceptor {
 
   /// Whether to pretty print a JSON or return as regular String
   String _getBody(dynamic data, String? contentType) {
-    if (contentType != null &&
-        contentType.toLowerCase().contains('application/json')) {
+    final type = contentType?.toLowerCase();
+    if (type?.contains('application/json') == true ||
+        type?.contains('application/x-www-form-urlencoded') == true) {
       final encoder = JsonEncoder.withIndent('  ');
       // Since the JSON could be a Map or List
       dynamic jsonBody;
@@ -90,6 +91,8 @@ class HttpFormatter extends Interceptor {
         jsonBody = data;
       }
       return encoder.convert(jsonDecode(jsonEncode(jsonBody)));
+    } else if (type?.contains("multipart/form-data") == true) {
+      return JsonEncoder.withIndent('  ').convert(formDataToJson(data));
     } else {
       return data.toString();
     }
@@ -159,5 +162,21 @@ class HttpFormatter extends Interceptor {
     }
 
     return requestString + responseString;
+  }
+
+  Map<String, dynamic> formDataToJson(FormData formData) {
+    final map = <String, dynamic>{};
+    for (final entry in formData.fields) {
+      map[entry.key] = entry.value;
+    }
+    for (final file in formData.files) {
+      var responseString = "[application/octet-stream; ";
+      if (file.value.filename != null) {
+        responseString += "filename=${file.value.filename}; ";
+      }
+      responseString += "length=${file.value.length}]";
+      map[file.key] = responseString;
+    }
+    return map;
   }
 }
