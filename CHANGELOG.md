@@ -1,3 +1,7 @@
+## 3.2.0
+
+- Upgrade `logger` to v2
+
 ## 3.1.0
 
 - Add support for FormData (including files) and x-www-form-urlencoded ([#9](https://github.com/assemmarwan/dio_http_formatter/pull/9))
