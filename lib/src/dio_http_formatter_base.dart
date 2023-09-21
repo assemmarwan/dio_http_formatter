@@ -21,6 +21,7 @@ class HttpFormatter extends Interceptor {
 
   /// Optionally add a filter that will log if the function returns true
   final HttpLoggerFilter? _httpLoggerFilter;
+  final _encoder = const JsonEncoder.withIndent('  ');
 
   /// Optionally can add custom [LogPrinter]
   HttpFormatter(
@@ -67,7 +68,7 @@ class HttpFormatter extends Interceptor {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     if (_httpLoggerFilter == null || _httpLoggerFilter!()) {
       final message = _prepareLog(err.requestOptions, err.response);
       if (message != '') {
@@ -80,9 +81,7 @@ class HttpFormatter extends Interceptor {
   /// Whether to pretty print a JSON or return as regular String
   String _getBody(dynamic data, String? contentType) {
     final type = contentType?.toLowerCase();
-    if (type?.contains('application/json') == true ||
-        type?.contains('application/x-www-form-urlencoded') == true) {
-      final encoder = JsonEncoder.withIndent('  ');
+    if (type?.contains('application/json') == true) {
       // Since the JSON could be a Map or List
       dynamic jsonBody;
       if (data is String) {
@@ -90,9 +89,11 @@ class HttpFormatter extends Interceptor {
       } else {
         jsonBody = data;
       }
-      return encoder.convert(jsonDecode(jsonEncode(jsonBody)));
+      return _encoder.convert(jsonDecode(jsonEncode(jsonBody)));
+    } else if (type?.contains('application/x-www-form-urlencoded') == true) {
+      return _encoder.convert(jsonDecode(jsonEncode(data)));
     } else if (type?.contains("multipart/form-data") == true) {
-      return JsonEncoder.withIndent('  ').convert(formDataToJson(data));
+      return _encoder.convert(formDataToJson(data));
     } else {
       return data.toString();
     }
