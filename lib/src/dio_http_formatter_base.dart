@@ -21,7 +21,9 @@ class HttpFormatter extends Interceptor {
 
   /// Optionally add a filter that will log if the function returns true
   final HttpLoggerFilter? _httpLoggerFilter;
-  final _encoder = const JsonEncoder.withIndent('  ');
+
+  /// Pretty print JSON
+  final _jsonEncoder = const JsonEncoder.withIndent('  ');
 
   /// Optionally can add custom [LogPrinter]
   HttpFormatter(
@@ -89,11 +91,11 @@ class HttpFormatter extends Interceptor {
       } else {
         jsonBody = data;
       }
-      return _encoder.convert(jsonDecode(jsonEncode(jsonBody)));
+      return _jsonEncoder.convert(jsonDecode(jsonEncode(jsonBody)));
     } else if (type?.contains('application/x-www-form-urlencoded') == true) {
-      return _encoder.convert(jsonDecode(jsonEncode(data)));
+      return _jsonEncoder.convert(jsonDecode(jsonEncode(data)));
     } else if (type?.contains("multipart/form-data") == true) {
-      return _encoder.convert(formDataToJson(data));
+      return _jsonEncoder.convert(formDataToJson(data));
     } else {
       return data.toString();
     }
