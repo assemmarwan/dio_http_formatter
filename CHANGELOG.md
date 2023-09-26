@@ -1,3 +1,8 @@
+## 3.2.1
+
+- fix: Parse application/x-www-form-urlencoded ([#11](https://github.com/assemmarwan/dio_http_formatter/pull/11))
+- perf: Single `JsonEncoder` instance ([#11](https://github.com/assemmarwan/dio_http_formatter/pull/11))
+
 ## 3.2.0
 
 - Upgrade `logger` to v2
