@@ -3,21 +3,20 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 
+import 'defaults.dart';
+import 'options.dart';
+
 typedef HttpLoggerFilter = bool Function();
 
 const _prefix = 'dio_http_formatter';
 const _startTimeKey = '$_prefix@start_time';
 
 class HttpFormatter extends Interceptor {
+  /// Options for controlling what to log
+  final HttpFormatterOptions _options;
+
   // Logger object to pretty print the HTTP Request
   final Logger _logger;
-  final bool _includeRequest,
-      _includeRequestHeaders,
-      _includeRequestQueryParams,
-      _includeRequestBody,
-      _includeResponse,
-      _includeResponseHeaders,
-      _includeResponseBody;
 
   /// Optionally add a filter that will log if the function returns true
   final HttpLoggerFilter? _httpLoggerFilter;
@@ -26,30 +25,12 @@ class HttpFormatter extends Interceptor {
   final _jsonEncoder = const JsonEncoder.withIndent('  ');
 
   /// Optionally can add custom [LogPrinter]
-  HttpFormatter(
-      {bool includeRequest = true,
-      bool includeRequestHeaders = true,
-      bool includeRequestQueryParams = true,
-      bool includeRequestBody = true,
-      bool includeResponse = true,
-      bool includeResponseHeaders = true,
-      bool includeResponseBody = true,
-      Logger? logger,
-      HttpLoggerFilter? httpLoggerFilter})
-      : _includeRequest = includeRequest,
-        _includeRequestHeaders = includeRequestHeaders,
-        _includeRequestQueryParams = includeRequestQueryParams,
-        _includeRequestBody = includeRequestBody,
-        _includeResponse = includeResponse,
-        _includeResponseHeaders = includeResponseHeaders,
-        _includeResponseBody = includeResponseBody,
-        _logger = logger ??
-            Logger(
-                printer: PrettyPrinter(
-                    methodCount: 0,
-                    colors: true,
-                    printTime: false,
-                    printEmojis: false)),
+  HttpFormatter({
+    HttpFormatterOptions? options,
+    Logger? logger,
+    HttpLoggerFilter? httpLoggerFilter,
+  })  : _options = options ?? defaultHttpFormatterOptions,
+        _logger = logger ?? defaultLogger,
         _httpLoggerFilter = httpLoggerFilter;
 
   @override
@@ -77,7 +58,7 @@ class HttpFormatter extends Interceptor {
         _logger.e(message);
       }
     }
-    return super.onError(err, handler);
+    super.onError(err, handler);
   }
 
   /// Whether to pretty print a JSON or return as regular String
@@ -120,25 +101,25 @@ class HttpFormatter extends Interceptor {
   String _prepareLog(RequestOptions? requestOptions, Response? response) {
     var requestString = '', responseString = '';
 
-    if (_includeRequest) {
+    if (_options.includeRequest) {
       requestString = '⤴ REQUEST ⤴\n\n';
 
       requestString +=
           '${requestOptions?.method ?? ''} ${requestOptions?.path ?? ''}\n';
 
-      if (_includeRequestHeaders) {
+      if (_options.includeRequestHeaders) {
         for (final header in (requestOptions?.headers ?? {}).entries) {
           requestString += '${header.key}: ${header.value}\n';
         }
       }
 
-      if (_includeRequestQueryParams &&
+      if (_options.includeRequestQueryParams &&
           requestOptions?.queryParameters != null &&
           requestOptions!.queryParameters.isNotEmpty) {
         requestString += '\n${_getQueryParams(requestOptions.queryParameters)}';
       }
 
-      if (_includeRequestBody && requestOptions?.data != null) {
+      if (_options.includeRequestBody && requestOptions?.data != null) {
         requestString +=
             '\n\n${_getBody(requestOptions?.data, requestOptions?.contentType)}';
       }
@@ -146,19 +127,19 @@ class HttpFormatter extends Interceptor {
       requestString += '\n\n';
     }
 
-    if (_includeResponse && response != null) {
+    if (_options.includeResponse && response != null) {
       responseString =
           '⤵ RESPONSE [${response.statusCode}/${response.statusMessage}] '
           '${requestOptions?.extra[_startTimeKey] != null ? '[Time elapsed: ${DateTime.now().millisecondsSinceEpoch - requestOptions?.extra[_startTimeKey]} ms]' : ''}'
           '⤵\n\n';
 
-      if (_includeResponseHeaders) {
+      if (_options.includeResponseHeaders) {
         for (final header in response.headers.map.entries) {
           responseString += '${header.key}: ${header.value}\n';
         }
       }
 
-      if (_includeResponseBody && response.data != null) {
+      if (_options.includeResponseBody && response.data != null) {
         responseString +=
             '\n\n${_getBody(response.data, response.headers.value('content-type'))}';
       }
