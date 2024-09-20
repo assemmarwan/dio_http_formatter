@@ -5,6 +5,12 @@ import 'package:logger/logger.dart';
 
 typedef HttpLoggerFilter = bool Function();
 
+typedef LoggingFilter = bool Function(
+  RequestOptions? request,
+  Response? response,
+  DioException? error,
+);
+
 const _prefix = 'dio_http_formatter';
 const _startTimeKey = '$_prefix@start_time';
 
@@ -22,21 +28,28 @@ class HttpFormatter extends Interceptor {
   /// Optionally add a filter that will log if the function returns true
   final HttpLoggerFilter? _httpLoggerFilter;
 
+  /// Optionally add a filter whether to log response
+  final LoggingFilter? _loggingFilter;
+
   /// Pretty print JSON
   final _jsonEncoder = const JsonEncoder.withIndent('  ');
 
   /// Optionally can add custom [LogPrinter]
-  HttpFormatter(
-      {bool includeRequest = true,
-      bool includeRequestHeaders = true,
-      bool includeRequestQueryParams = true,
-      bool includeRequestBody = true,
-      bool includeResponse = true,
-      bool includeResponseHeaders = true,
-      bool includeResponseBody = true,
-      Logger? logger,
-      HttpLoggerFilter? httpLoggerFilter})
-      : _includeRequest = includeRequest,
+  HttpFormatter({
+    bool includeRequest = true,
+    bool includeRequestHeaders = true,
+    bool includeRequestQueryParams = true,
+    bool includeRequestBody = true,
+    bool includeResponse = true,
+    bool includeResponseHeaders = true,
+    bool includeResponseBody = true,
+    Logger? logger,
+    @Deprecated(
+      'This is deprecated in favor of httpResponseFilter. Will be removed in v4',
+    )
+    HttpLoggerFilter? httpLoggerFilter,
+    LoggingFilter? loggingFilter,
+  })  : _includeRequest = includeRequest,
         _includeRequestHeaders = includeRequestHeaders,
         _includeRequestQueryParams = includeRequestQueryParams,
         _includeRequestBody = includeRequestBody,
@@ -45,12 +58,21 @@ class HttpFormatter extends Interceptor {
         _includeResponseBody = includeResponseBody,
         _logger = logger ??
             Logger(
-                printer: PrettyPrinter(
-                    methodCount: 0,
-                    colors: true,
-                    printTime: false,
-                    printEmojis: false)),
-        _httpLoggerFilter = httpLoggerFilter;
+              printer: PrettyPrinter(
+                methodCount: 0,
+                colors: true,
+                dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
+                printEmojis: false,
+              ),
+            ),
+        _httpLoggerFilter = httpLoggerFilter,
+        _loggingFilter = loggingFilter {
+    assert(
+      (httpLoggerFilter == null && loggingFilter != null) ||
+          (httpLoggerFilter != null && loggingFilter == null),
+      "Can't define both `httpLoggerFilter` and `loggingFilter`",
+    );
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -60,7 +82,13 @@ class HttpFormatter extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) async {
-    if (_httpLoggerFilter == null || _httpLoggerFilter!()) {
+    if ((_httpLoggerFilter == null || _httpLoggerFilter!()) &&
+        (_loggingFilter == null ||
+            _loggingFilter!(
+              response.requestOptions,
+              response,
+              null,
+            ))) {
       final message = _prepareLog(response.requestOptions, response);
       if (message != '') {
         _logger.i(message);
@@ -71,7 +99,13 @@ class HttpFormatter extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (_httpLoggerFilter == null || _httpLoggerFilter!()) {
+    if ((_httpLoggerFilter == null || _httpLoggerFilter!()) &&
+        (_loggingFilter == null ||
+            _loggingFilter!(
+              err.requestOptions,
+              err.response,
+              err,
+            ))) {
       final message = _prepareLog(err.requestOptions, err.response);
       if (message != '') {
         _logger.e(message);
