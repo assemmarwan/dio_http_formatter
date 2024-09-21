@@ -78,6 +78,9 @@ dio.interceptors.add(
 );
 ```
 
+> [!WARNING]  
+> `httpLoggerFilter` is now deprecated and it's highly encouraged to move to the new `loggingFilter`. `httpLoggerFilter` will be removed in the next major version.
+
 ## Examples
 
 ### POST request [application/json]
