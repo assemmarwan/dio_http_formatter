@@ -44,16 +44,42 @@ For a certain version of Dio, use the following table to find the correct versio
 
 Below are the optional parameters that can be specified for the formatter to customize what and how the HTTP request and response is printed.
 
-| Property                  | Type     |   Default Value   |
-|:--------------------------|:---------|:-----------------:|
-| includeRequest            | `bool`   |      `true`       |
-| includeRequestHeaders     | `bool`   |      `true`       |
-| includeRequestQueryParams | `bool`   |      `true`       |
-| includeRequestBody        | `bool`   |      `true`       |
-| includeResponse           | `bool`   |      `true`       |
-| includeResponseHeaders    | `bool`   |      `true`       |
-| includeResponseBody       | `bool`   |      `true`       |
-| logger                    | `Logger` | `PrettyPrinter()` |
+| Property                  |       Type      |   Default Value   |
+|---------------------------|:---------------:|:-----------------:|
+| includeRequest            |      `bool`     |       `true`      |
+| includeRequestHeaders     |      `bool`     |       `true`      |
+| includeRequestQueryParams |      `bool`     |       `true`      |
+| includeRequestBody        |      `bool`     |       `true`      |
+| includeResponse           |      `bool`     |       `true`      |
+| includeResponseHeaders    |      `bool`     |       `true`      |
+| includeResponseBody       |      `bool`     |       `true`      |
+| logger                    |     `Logger`    | `PrettyPrinter()` |
+| loggingFilter             | `LoggingFilter` |       `null`      |
+
+
+## Logging Filter
+
+The `HTTPFormatter` has support for filtering whether to log a request/response or not. For example:
+
+```dart
+
+final dio = Dio();
+dio.interceptors.add(
+  HttpFormatter(
+    loggingFilter: (request, response, error) {
+      // We don't want to print the request/response when 201 is returned
+      if (response?.statusCode == 201) {
+        return false;
+      }
+      // Otherwise, the logs should print
+      return true;
+    },
+  ),
+);
+```
+
+> [!WARNING]  
+> `httpLoggerFilter` is now deprecated and it's highly encouraged to move to the new `loggingFilter`. `httpLoggerFilter` will be removed in the next major version.
 
 ## Examples
 
