@@ -68,8 +68,7 @@ class HttpFormatter extends Interceptor {
         _httpLoggerFilter = httpLoggerFilter,
         _loggingFilter = loggingFilter {
     assert(
-      (httpLoggerFilter == null && loggingFilter != null) ||
-          (httpLoggerFilter != null && loggingFilter == null),
+      !(httpLoggerFilter != null && loggingFilter != null),
       "Can't define both `httpLoggerFilter` and `loggingFilter`",
     );
   }
