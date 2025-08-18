@@ -1,3 +1,7 @@
+## 3.3.1
+
+- fix: Invalid assertion on logging filters ([#17](https://github.com/assemmarwan/dio_http_formatter/pull/17))
+
 ## 3.3.0
 
 - feat: Ability to pass a `loggingFilter` that returns boolean determining whether to log the request/response or not.
